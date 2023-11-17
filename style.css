@@ -1,0 +1,49 @@
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+}
+#zipFileInput {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #58a6ff;
+    border-radius: 5px;
+    background-color: #161b22;
+    color: #c9d1d9;
+}
+#output {
+    border: 1px solid #30363d;
+    padding: 15px;
+    width: 80%;
+    height: 400px;
+    overflow-y: scroll;
+    background-color: #161b22;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+button {
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #30363d;
+}
+.statistics {
+    font-size: 16px;
+    margin: 20px 0;
+}
+.button-group {
+    display: flex;
+    gap: 10px;
+}

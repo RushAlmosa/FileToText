@@ -2,13 +2,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZIP Extractor Tool</title>
+    <link rel="stylesheet" href="style.css">
+    <title>Modern ZIP Extractor Tool</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
 </head>
 <body>
     <input type="file" id="zipFileInput" accept=".zip" />
-    <button id="extractButton">Extract</button>
+    <div class="statistics">
+        <span id="fileCount">Total Files: 0</span> | 
+        <span id="charCount">Total Characters: 0</span>
+    </div>
     <pre id="output"></pre>
+    <div class="button-group">
+        <button id="downloadButton">Download Content</button>
+        <button id="copyButton">Copy Content</button>
+    </div>
 
     <script src="extractor.js"></script>
 </body>

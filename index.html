@@ -7,7 +7,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
 </head>
 <body>
-    <input type="file" id="zipFileInput" accept=".zip" />
+    <div class="input-wrapper">
+        <input type="file" id="zipFileInput" accept=".zip" />
+    </div>
+    <div id="loadingIndicator" style="display: none; color: #58a6ff;">
+        Processing... Please wait.
+    </div>
     <div class="statistics">
         <span id="fileCount">Total Files: 0</span> | 
         <span id="charCount">Total Characters: 0</span>

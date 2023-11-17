@@ -1,6 +1,7 @@
 document.getElementById('zipFileInput').addEventListener('change', function(event) {
     var file = event.target.files[0];
     if (file) {
+        showLoadingIndicator(true);
         extractZip(file);
     }
 });
@@ -10,20 +11,43 @@ function extractZip(file) {
         var output = document.getElementById('output');
         var totalFiles = 0;
         var totalCharacters = 0;
+        var filesProcessed = 0;
+        var totalFilesInZip = Object.keys(zip.files).length;
         output.textContent = ''; // Clear previous output
+        document.getElementById('fileCount').classList.add('highlight');
+        document.getElementById('charCount').classList.add('highlight');
+        document.getElementById('zipFileInput').classList.add('disabled');
+        document.querySelectorAll('button').forEach(btn => btn.classList.add('disabled'));
 
         zip.forEach(function(relativePath, zipEntry) {
             totalFiles++;
             zipEntry.async("string").then(function(content) {
                 totalCharacters += content.length;
-                output.textContent += `Path: ${relativePath}\nContent:\n${content}\n\n`;
+                let displayContent = content.trim().length === 0 ? 
+                                     (zipEntry.dir ? "This is a folder." : "No content/maybe this is a file or empty.") : content;
+                output.textContent += `Path: ${relativePath}\nContent:\n${displayContent}\n\n`;
+                filesProcessed++;
 
-                // Update statistics after processing each file
                 document.getElementById('fileCount').textContent = `Total Files: ${totalFiles}`;
                 document.getElementById('charCount').textContent = `Total Characters: ${totalCharacters}`;
+
+                // Hide loading indicator when all files are processed
+                if (filesProcessed === totalFilesInZip) {
+                    document.getElementById('fileCount').classList.remove('highlight');
+                    document.getElementById('charCount').classList.remove('highlight');
+                    document.getElementById('zipFileInput').classList.remove('disabled');
+                    document.querySelectorAll('button').forEach(btn => btn.classList.remove('disabled'));
+            
+                    showLoadingIndicator(false);
+                }
             });
         });
     });
+}
+
+function showLoadingIndicator(show) {
+    var indicator = document.getElementById('loadingIndicator');
+    indicator.style.display = show ? 'block' : 'none';
 }
 
 function downloadContent() {

@@ -6,43 +6,73 @@ document.getElementById('zipFileInput').addEventListener('change', function(even
     }
 });
 
-function extractZip(file) {
-    JSZip.loadAsync(file).then(function(zip) {
-        var output = document.getElementById('output');
-        var totalFiles = 0;
-        var totalCharacters = 0;
-        var filesProcessed = 0;
-        var totalFilesInZip = Object.keys(zip.files).length;
-        output.textContent = ''; // Clear previous output
-        document.getElementById('fileCount').classList.add('highlight');
-        document.getElementById('charCount').classList.add('highlight');
-        document.getElementById('zipFileInput').classList.add('disabled');
-        document.querySelectorAll('button').forEach(btn => btn.classList.add('disabled'));
+var isCancelled = false;
 
-        zip.forEach(function(relativePath, zipEntry) {
+document.getElementById('cancelButton').addEventListener('click', function() {
+    isCancelled = true;
+    console.log('Extraction cancelled by user.');
+    console.log('isCancelled:', isCancelled);
+    showLoadingIndicator(false);
+    document.getElementById('output').textContent += 'Extraction cancelled by user.\n';
+    finalizeExtraction();
+});
+async function extractZip(file) {
+    try {
+        isCancelled = false;
+        const zip = await JSZip.loadAsync(file);
+        const output = document.getElementById('output');
+        let totalFiles = 0;
+        let totalCharacters = 0;
+        let filesProcessed = 0;
+        const totalFilesInZip = Object.keys(zip.files).length;
+        output.textContent = '';
+        showLoadingIndicator(true);
+
+        for (const relativePath of Object.keys(zip.files)) {
+            console.log('isCancelled:', isCancelled);
+            if (isCancelled) {
+                console.log('Extraction Cancelled');
+                throw new Error('Extraction Cancelled');
+            }
+
+            const zipEntry = zip.files[relativePath];
+            const content = await zipEntry.async("string");
+            if (isCancelled) {
+                console.log('Extraction Cancelled after async call');
+                throw new Error('Extraction Cancelled');
+            }
+
             totalFiles++;
-            zipEntry.async("string").then(function(content) {
-                totalCharacters += content.length;
-                let displayContent = content.trim().length === 0 ? 
-                                     (zipEntry.dir ? "This is a folder." : "No content/maybe this is a file or empty.") : content;
-                output.textContent += `Path: ${relativePath}\nContent:\n${displayContent}\n\n`;
-                filesProcessed++;
+            totalCharacters += content.length;
+            const displayContent = content.trim().length === 0 ? 
+                                   (zipEntry.dir ? "This is a folder." : "No content/maybe this is a file or empty.") : content;
+            output.textContent += `Path: ${relativePath}\nContent:\n${displayContent}\n\n`;
 
-                document.getElementById('fileCount').textContent = `Total Files: ${totalFiles}`;
-                document.getElementById('charCount').textContent = `Total Characters: ${totalCharacters}`;
+            document.getElementById('fileCount').textContent = `Total Files: ${totalFiles}`;
+            document.getElementById('charCount').textContent = `Total Characters: ${totalCharacters}`;
+            output.scrollTop = output.scrollHeight;
 
-                // Hide loading indicator when all files are processed
-                if (filesProcessed === totalFilesInZip) {
-                    document.getElementById('fileCount').classList.remove('highlight');
-                    document.getElementById('charCount').classList.remove('highlight');
-                    document.getElementById('zipFileInput').classList.remove('disabled');
-                    document.querySelectorAll('button').forEach(btn => btn.classList.remove('disabled'));
-            
-                    showLoadingIndicator(false);
-                }
-            });
-        });
-    });
+            filesProcessed++;
+            if (filesProcessed === totalFilesInZip) {
+                finalizeExtraction();
+            }
+        }
+    } catch (error) {
+        if (error.message === 'Extraction Cancelled') {
+            console.log('Extraction was cancelled by the user.');
+        } else {
+            console.error('Error during extraction:', error);
+        }
+    }
+}
+
+
+function finalizeExtraction() {
+    document.getElementById('fileCount').classList.remove('highlight');
+    document.getElementById('charCount').classList.remove('highlight');
+    document.getElementById('zipFileInput').classList.remove('disabled');
+    document.querySelectorAll('button').forEach(btn => btn.classList.remove('disabled'));
+    showLoadingIndicator(false);
 }
 
 function showLoadingIndicator(show) {
